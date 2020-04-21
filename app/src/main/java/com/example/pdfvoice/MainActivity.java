@@ -19,6 +19,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE}, PackageManager.PERMISSION_GRANTED);
-
+        textToSpeech.stop();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,7 +107,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        pageNo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                  if(uri!=null && editable.length()!=0)
+                       readPdfFile(uri.toString());
+
+
+
+            }
+        });
 
         previousPage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             outputTextView.setText(stringParser);
 
             Toast.makeText(getApplicationContext(),stringParser,Toast.LENGTH_LONG).show();
-
+            textToSpeech.stop();
             textToSpeech.speak(stringParser, TextToSpeech.QUEUE_FLUSH,null, null);
 
         } catch (IOException e) {
@@ -223,5 +244,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        textToSpeech.stop();
     }
 }
