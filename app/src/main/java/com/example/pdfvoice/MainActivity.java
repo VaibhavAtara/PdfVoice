@@ -171,18 +171,18 @@ public class MainActivity extends AppCompatActivity {
         String fullPath;
         String stringParser="";
 
-       if(Uri.parse(uri).getPath().contains(PRIMARY)) {
+      /* if(Uri.parse(uri).getPath().contains(PRIMARY)) {
             fullPath = LOCAL_STORAGE + Uri.parse(uri).getPath().split(COLON)[1];
         }
         else {
             fullPath = EXT_STORAGE + Uri.parse(uri).getPath().split(COLON)[1];
         }
-
+        */
 
         Toast.makeText(getApplicationContext(),"Full:"+Uri.parse(uri).getPath(),Toast.LENGTH_LONG).show();
         try {
 
-            pdfReader = new PdfReader(fullPath);
+            pdfReader = new PdfReader("/storage/emulated/0/Download/And.pdf");
             page_No = Integer.parseInt(pageNo.getText().toString());
 
             if(page_No <=pdfReader.getNumberOfPages())
