@@ -1,23 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <LinearLayout
+        android:id="@+id/pageSelect"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/TotalPages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="10dp"
+                android:text="Total Pages: -/-"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/previousPage"
+                android:text=""
+                android:layout_toRightOf="@+id/TotalPages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_previous_page"
+                />
+
+
+            <EditText
+                android:id="@+id/pageNo"
+                android:layout_toRightOf="@+id/previousPage"
+                android:text="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/nextPage"
+                android:layout_toRightOf="@+id/pageNo"
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_next_page"
+                />
+
+
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/output_text"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="hello"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold"
+        android:text="Click on + icon to read pdf."
+        />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</LinearLayout>

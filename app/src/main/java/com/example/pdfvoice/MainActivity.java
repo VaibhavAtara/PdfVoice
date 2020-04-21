@@ -24,6 +24,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +38,15 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+
     TextView outputTextView;
+    TextView TotalPages;
     TextToSpeech textToSpeech;
+    EditText pageNo;
+    int page_No=1;
+    Uri uri;
+    PdfReader pdfReader;
+    Button previousPage,nextPage;
     private static final int READ_REQUEST_CODE = 42;
     private static final String PRIMARY = "primary";
     private static final String LOCAL_STORAGE = "/storage/self/primary/";
@@ -54,13 +63,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-      final FloatingActionButton fab = findViewById(R.id.fab);
-
-
-
+        final FloatingActionButton fab = findViewById(R.id.fab);
         outputTextView = findViewById(R.id.output_text);
         outputTextView.setMovementMethod(new ScrollingMovementMethod());
-        //pdfView = (PDFView)findViewById(R.id.pdfview);
+        pageNo = (EditText)findViewById(R.id.pageNo);
+        previousPage =(Button)findViewById(R.id.previousPage);
+        nextPage = (Button)findViewById(R.id.nextPage);
+        TotalPages = (TextView)findViewById(R.id.TotalPages);
+
+
 
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -93,7 +104,53 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+
+        previousPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(uri==null)
+                {
+                    Toast.makeText(getApplicationContext(),"No pdf selected",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(Integer.parseInt(pageNo.getText().toString())!=1) {
+                    pageNo.setText(String.valueOf((Integer.parseInt(pageNo.getText().toString()) - 1)));
+                    readPdfFile(uri.toString());
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),"This is First page!!!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        nextPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(uri==null)
+                {
+                    Toast.makeText(getApplicationContext(),"No pdf selected",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(Integer.parseInt(pageNo.getText().toString())!=pdfReader.getNumberOfPages()) {
+                    pageNo.setText(String.valueOf((Integer.parseInt(pageNo.getText().toString()) + 1)));
+                    readPdfFile(uri.toString());
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"This is last page!!!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
+
+
+
+
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
@@ -101,9 +158,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, resultData);
         if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if(resultData != null) {
-                Uri uri = resultData.getData();
-//                Toast.makeText(this, uri.getPath(), Toast.LENGTH_SHORT).show();
-                Log.v("URI", uri.getPath());
+                uri = resultData.getData();
+                //Toast.makeText(this, uri.getPath(), Toast.LENGTH_SHORT).show();
                 readPdfFile(uri.toString());
             }
         }
@@ -112,9 +168,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void readPdfFile(String uri) {
 
-       // pdfView.fromUri(Uri.parse(uri)).load();
         String fullPath;
-        //convert from uri to full path
+        String stringParser="";
+
        if(Uri.parse(uri).getPath().contains(PRIMARY)) {
             fullPath = LOCAL_STORAGE + Uri.parse(uri).getPath().split(COLON)[1];
         }
@@ -122,18 +178,26 @@ public class MainActivity extends AppCompatActivity {
             fullPath = EXT_STORAGE + Uri.parse(uri).getPath().split(COLON)[1];
         }
 
-        String stringParser="";
+
         Toast.makeText(getApplicationContext(),"Full:"+Uri.parse(uri).getPath(),Toast.LENGTH_LONG).show();
         try {
 
-            PdfReader pdfReader = new PdfReader(fullPath);
+            pdfReader = new PdfReader(fullPath);
+            page_No = Integer.parseInt(pageNo.getText().toString());
 
-            for(int i=1;i<=pdfReader.getNumberOfPages();i++)
-              stringParser += PdfTextExtractor.getTextFromPage(pdfReader, i).trim();
+            if(page_No <=pdfReader.getNumberOfPages())
+              stringParser = PdfTextExtractor.getTextFromPage(pdfReader, page_No).trim();
+
+
+            TotalPages.setText("Total Pages : "+page_No+"/"+pdfReader.getNumberOfPages());
+
             pdfReader.close();
-           outputTextView.setText(stringParser);
+            outputTextView.setText(stringParser);
+
             Toast.makeText(getApplicationContext(),stringParser,Toast.LENGTH_LONG).show();
+
             textToSpeech.speak(stringParser, TextToSpeech.QUEUE_FLUSH,null, null);
+
         } catch (IOException e) {
            e.printStackTrace();
         }
