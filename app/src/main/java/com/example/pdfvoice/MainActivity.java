@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
@@ -36,6 +37,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent intent;
 
     boolean speak=true,stop=false;
-
+    HashMap<String, String> map = new HashMap<String, String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,12 +77,42 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 textToSpeech.setLanguage(Locale.US);
-            }
+                if(status==textToSpeech.SUCCESS){
+                textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onStart(String utteranceId) {
+
+
+                    }
+
+                    @Override
+                    public void onDone(String utteranceId) {
+                        runOnUiThread(new Runnable() {
+
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),"bye bye",Toast.LENGTH_LONG).show();
+                                nextPage.performClick();
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onError(String utteranceId) {
+
+                    }
+                });
+            }}
         });
+
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE}, PackageManager.PERMISSION_GRANTED);
@@ -142,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     readPdfFile(uri.toString());
                 }
                 else{
-                    Toast.makeText(getApplicationContext(),"This is First page!!!",Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(),"This is First page!!!",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -153,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(uri==null)
                 {
-                    Toast.makeText(getApplicationContext(),"No pdf selected",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(),"No pdf selected",Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(Integer.parseInt(pageNo.getText().toString())!=pdfReader.getNumberOfPages()) {
@@ -161,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     readPdfFile(uri.toString());
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"This is last page!!!",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(),"This is last page!!!",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -200,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         }
         */
 
-        Toast.makeText(getApplicationContext(),"Full:"+Uri.parse(uri).getPath(),Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),"Full:"+Uri.parse(uri).getPath(),Toast.LENGTH_LONG).show();
         try {
 
             pdfReader = new PdfReader("/storage/emulated/0/Download/And.pdf");
@@ -215,9 +247,9 @@ public class MainActivity extends AppCompatActivity {
             pdfReader.close();
             outputTextView.setText(stringParser);
 
-            Toast.makeText(getApplicationContext(),stringParser,Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(),stringParser,Toast.LENGTH_LONG).show();
             textToSpeech.stop();
-            textToSpeech.speak(stringParser, TextToSpeech.QUEUE_FLUSH,null, null);
+            textToSpeech.speak(stringParser, TextToSpeech.QUEUE_FLUSH,null,map.toString());
 
         } catch (IOException e) {
            e.printStackTrace();
@@ -244,6 +276,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        textToSpeech.stop();
     }
 
     @Override
